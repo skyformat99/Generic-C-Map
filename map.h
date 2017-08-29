@@ -30,35 +30,34 @@ struct                                                                         \
     bool (*_key_eq_f)(void*, void*); /* returns true if two keys are equal */  \
 }
 
-#define map_init(/* map(KEY_TYPE, VALUE_TYPE)* */p_map,                        \
+#define map_init(/* map(KEY_TYPE, VALUE_TYPE) */map,                           \
     /* size_t (*)(void*) */hash_f, /* int (*)(void*, void*) */key_eq_f,        \
     /* unsigned */num_bits)                                                    \
-                                  _map_init((p_map), hash_f, key_eq_f, num_bits)
+                                    _map_init((map), hash_f, key_eq_f, num_bits)
 
-#define map_deinit(/* map(KEY_TYPE, VALUE_TYPE)* */p_map)                      \
-                                                            _map_deinit((p_map))
+#define map_deinit(/* map(KEY_TYPE, VALUE_TYPE) */map)                         \
+                                                              _map_deinit((map))
 
-#define map_set(/* map(KEY_TYPE, VALUE_TYPE)* */p_map, /* KEY_TYPE */key,      \
+#define map_set(/* map(KEY_TYPE, VALUE_TYPE) */map, /* KEY_TYPE */key,         \
     /* VALUE_TYPE */value)                                                     \
-                                                   _map_set((p_map), key, value)
+                                                     _map_set((map), key, value)
 
-#define map_get(/* VALUE_TYPE* */p_ans, /* map(KEY_TYPE, VALUE_TYPE)* */p_map, \
+#define map_get(/* VALUE_TYPE */ans, /* map(KEY_TYPE, VALUE_TYPE) */map,       \
     /* KEY_TYPE */key)                                                         \
-                                                 _map_get((p_ans), (p_map), key)
+                                                     _map_get((ans), (map), key)
 
-#define map_key_exists(/* bool* */p_ans, /* map(KEY_TYPE, VALUE_TYPE)* */p_map,\
-    /*KEY_TYPE */key)                                                          \
-                                          _map_key_exists((p_ans), (p_map), key)
+#define map_key_exists(/* bool */ans, /* map(KEY_TYPE, VALUE_TYPE) */map,      \
+    /* KEY_TYPE */key)                                                         \
+                                              _map_key_exists((ans), (map), key)
 
-#define map_remove(/* map(KEY_TYPE, VALUE_TYPE)* */p_map, /* KEY_TYPE */key)   \
-                                                       _map_remove((p_map), key)
+#define map_remove(/* map(KEY_TYPE, VALUE_TYPE) */map, /* KEY_TYPE */key)      \
+                                                         _map_remove((map), key)
 
-#define map_length(/* size_t* */p_ans, /* map(KEY_TYPE, VALUE_TYPE)* */p_map)  \
-                                                   _map_length((p_ans), (p_map))
+#define map_length(/* size_t */ans, /* map(KEY_TYPE, VALUE_TYPE) */map)        \
+                                                       _map_length((ans), (map))
 
-#define map_load_factor(/* double* */p_ans,                                    \
-    /* map(KEY_TYPE, VALUE_TYPE)* */p_map)                                     \
-                                              _map_load_factor((p_ans), (p_map))
+#define map_load_factor(/* double */ans, /* map(KEY_TYPE, VALUE_TYPE) */map)   \
+                                                  _map_load_factor((ans), (map))
 
 static size_t str_hash(void* key);
 static bool str_eq(void* str1, void* str2);
@@ -88,166 +87,166 @@ static inline void _map_memswap(void* p1, void* p2, size_t sz)
     }
 }
 
-#define _map_init(p_map, hash_f, key_eq_f, num_bits)                           \
+#define _map_init(map, hash_f, key_eq_f, num_bits)                             \
 do                                                                             \
 {                                                                              \
-    p_map->_bits = num_bits;                                                   \
-    if (p_map->_bits > MAP_BITS_PER_SIZE_T)                                    \
+    map._bits = num_bits;                                                      \
+    if (map._bits > MAP_BITS_PER_SIZE_T)                                       \
     {                                                                          \
-        p_map->status = MAP_INPUT_OUT_OF_RANGE;                                \
+        map.status = MAP_INPUT_OUT_OF_RANGE;                                   \
         break;                                                                 \
     }                                                                          \
-    p_map->_nelem = 0;                                                         \
-    p_map->_hash_f = hash_f;                                                   \
-    p_map->_key_eq_f = key_eq_f;                                               \
-    p_map->_table =                                                            \
-        calloc(_map_pow2(p_map->_bits), sizeof(p_map->_tmp));                  \
-    if (p_map->_table)                                                         \
-        p_map->status = MAP_SUCCESS;                                           \
+    map._nelem = 0;                                                            \
+    map._hash_f = hash_f;                                                      \
+    map._key_eq_f = key_eq_f;                                                  \
+    map._table =                                                               \
+        calloc(_map_pow2(map._bits), sizeof(map._tmp));                        \
+    if (map._table)                                                            \
+        map.status = MAP_SUCCESS;                                              \
     else                                                                       \
-        p_map->status = MAP_ALLOC_FAILURE;                                     \
+        map.status = MAP_ALLOC_FAILURE;                                        \
 }while(0)
 
-#define _map_deinit(p_map)                                                     \
+#define _map_deinit(map)                                                       \
 do                                                                             \
 {                                                                              \
-    free(p_map->_table);                                                       \
-    p_map->_table = NULL;                                                      \
-    p_map->status = MAP_SUCCESS;                                               \
+    free(map._table);                                                          \
+    map._table = NULL;                                                         \
+    map.status = MAP_SUCCESS;                                                  \
 }while(0);
 
-#define _map_set(p_map, key, value)                                            \
+#define _map_set(map, key, value)                                              \
 do                                                                             \
 {                                                                              \
     /* prepare element to be set */                                            \
-    p_map->_tmp._key = key;                                                    \
-    p_map->_tmp._value = value;                                                \
-    p_map->_tmp._hash = (p_map->_hash_f)(&(p_map->_tmp._key));                 \
-    p_map->_tmp._in_use = true;                                                \
+    map._tmp._key = key;                                                       \
+    map._tmp._value = value;                                                   \
+    map._tmp._hash = (map._hash_f)(&(map._tmp._key));                          \
+    map._tmp._in_use = true;                                                   \
     /* insert using robin hood insertion */                                    \
-    size_t __table_len = _map_pow2(p_map->_bits);                              \
-    size_t __curr = p_map->_tmp._hash % __table_len;                           \
+    size_t __table_len = _map_pow2(map._bits);                                 \
+    size_t __curr = map._tmp._hash % __table_len;                              \
     size_t __key_not_found = true;                                             \
-    while (__key_not_found && (p_map->_table)[__curr]._in_use)                 \
+    while (__key_not_found && (map._table)[__curr]._in_use)                    \
     {                                                                          \
-        if (p_map->_key_eq_f(&((p_map->_table)[__curr]._key),                  \
-            &(p_map->_tmp._key)))                                              \
+        if (map._key_eq_f(&((map._table)[__curr]._key),                        \
+            &(map._tmp._key)))                                                 \
         {                                                                      \
             /* key exists in the table already, so change it's value */        \
-            memcpy(&((p_map->_table)[__curr]), &(p_map->_tmp),                 \
-                sizeof(p_map->_tmp));                                          \
-            p_map->status = MAP_SUCCESS;                                       \
+            memcpy(&((map._table)[__curr]), &(map._tmp),                       \
+                sizeof(map._tmp));                                             \
+            map.status = MAP_SUCCESS;                                          \
             __key_not_found = false;                                           \
             break;                                                             \
         }                                                                      \
-        if (_map_dib(p_map->_tmp._hash, __curr, p_map->_bits) >                \
-            _map_dib((p_map->_table)[__curr]._hash, __curr, p_map->_bits))     \
+        if (_map_dib(map._tmp._hash, __curr, map._bits) >                      \
+            _map_dib((map._table)[__curr]._hash, __curr, map._bits))           \
         {                                                                      \
-            _map_memswap(&(p_map->_tmp), &((p_map->_table)[__curr]),           \
-                sizeof(p_map->_tmp));                                          \
+            _map_memswap(&(map._tmp), &((map._table)[__curr]),                 \
+                sizeof(map._tmp));                                             \
         }                                                                      \
         __curr = (__curr + 1) % __table_len;                                   \
     }                                                                          \
     if (__key_not_found)                                                       \
     {                                                                          \
         /* insert element into first empty bucket */                           \
-        memcpy(&((p_map->_table)[__curr]), &(p_map->_tmp),                     \
-            sizeof(p_map->_tmp));                                              \
+        memcpy(&((map._table)[__curr]), &(map._tmp),                           \
+            sizeof(map._tmp));                                                 \
         /* adjust map metadata */                                              \
-        ++(p_map->_nelem);                                                     \
-        p_map->status = MAP_SUCCESS;                                           \
+        ++(map._nelem);                                                        \
+        map.status = MAP_SUCCESS;                                              \
     }                                                                          \
 }while(0)
 
-#define _map_get(p_ans, p_map, key)                                            \
+#define _map_get(ans, map, key)                                                \
 do                                                                             \
 {                                                                              \
     bool __key_exists;                                                         \
-    _map_key_exists(&__key_exists, p_map, key);                                \
+    _map_key_exists(__key_exists, map, key);                                   \
     if (__key_exists)                                                          \
     {                                                                          \
         /* _map_key_exists stores the target value, so extract it */           \
-        *p_ans = p_map->_tmp._value;                                           \
-        p_map->status = MAP_SUCCESS;                                           \
+        ans = map._tmp._value;                                                 \
+        map.status = MAP_SUCCESS;                                              \
     }                                                                          \
     else                                                                       \
     {                                                                          \
-        p_map->status = MAP_KEY_NOT_FOUND;                                     \
+        map.status = MAP_KEY_NOT_FOUND;                                        \
     }                                                                          \
 }while(0)
 
-#define _map_key_exists(p_ans, p_map, key)                                     \
+#define _map_key_exists(ans, map, key)                                         \
 do                                                                             \
 {                                                                              \
-    p_map->_tmp._key = key;                                                    \
-    p_map->_tmp._hash = (p_map->_hash_f)(&(p_map->_tmp._key));                 \
-    size_t __table_len = _map_pow2(p_map->_bits);                              \
-    size_t __curr = p_map->_tmp._hash % __table_len;                           \
-    *p_ans = false;                                                            \
-    while ((p_map->_table)[__curr]._in_use &&                                  \
-        _map_dib(p_map->_tmp._hash, __curr, p_map->_bits) >=                   \
-        _map_dib((p_map->_table)[__curr]._hash, __curr, p_map->_bits))         \
+    map._tmp._key = key;                                                       \
+    map._tmp._hash = (map._hash_f)(&(map._tmp._key));                          \
+    size_t __table_len = _map_pow2(map._bits);                                 \
+    size_t __curr = map._tmp._hash % __table_len;                              \
+    ans = false;                                                               \
+    while ((map._table)[__curr]._in_use &&                                     \
+        _map_dib(map._tmp._hash, __curr, map._bits) >=                         \
+        _map_dib((map._table)[__curr]._hash, __curr, map._bits))               \
     {                                                                          \
-        if (p_map->_key_eq_f(&((p_map->_table)[__curr]._key),                  \
-            &(p_map->_tmp._key)))                                              \
+        if (map._key_eq_f(&((map._table)[__curr]._key),                        \
+            &(map._tmp._key)))                                                 \
         {                                                                      \
-            *p_ans = true;                                                     \
+            ans = true;                                                        \
             /* map_get needs the value at __curr */                            \
-            p_map->_tmp._value = (p_map->_table)[__curr]._value;               \
+            map._tmp._value = (map._table)[__curr]._value;                     \
             /* map_remove needs the location of the element (i.e. __curr) */   \
              /* use _hash as tmp index holder, not an actual hash */           \
-            p_map->_tmp._hash = __curr;                                        \
+            map._tmp._hash = __curr;                                           \
             break;                                                             \
         }                                                                      \
         __curr = (__curr + 1) % __table_len;                                   \
     }                                                                          \
-    p_map->status = MAP_SUCCESS;                                               \
+    map.status = MAP_SUCCESS;                                                  \
 }while(0)
 
-#define _map_remove(p_map, key)                                                \
+#define _map_remove(map, key)                                                  \
 do                                                                             \
 {                                                                              \
     bool __key_exists;                                                         \
-    _map_key_exists(&__key_exists, p_map, key);                                \
+    _map_key_exists(__key_exists, map, key);                                   \
     if (__key_exists)                                                          \
     {                                                                          \
         /* _map_key_exists stores the index where target element was found */  \
         /* Note: _tmp._hash isn't actually a hash. It's the index where the */ \
         /* target element actually ended up. */                                \
-        size_t __target_pos = p_map->_tmp._hash;                               \
+        size_t __target_pos = map._tmp._hash;                                  \
         size_t __stop_pos = __target_pos + 1;                                  \
-        size_t __table_len = _map_pow2(p_map->_bits);                          \
-        while ((p_map->_table)[__stop_pos]._in_use &&                          \
-            _map_dib(__target_pos, __stop_pos, p_map->_bits) > 0)              \
+        size_t __table_len = _map_pow2(map._bits);                             \
+        while ((map._table)[__stop_pos]._in_use &&                             \
+            _map_dib(__target_pos, __stop_pos, map._bits) > 0)                 \
         {                                                                      \
             __stop_pos = (__stop_pos + 1) % __table_len;                       \
         }                                                                      \
         for (size_t __i = __target_pos; __i < __stop_pos-1; ++__i)             \
         {                                                                      \
-            memmove(&((p_map->_table)[__i]),                                   \
-                &((p_map->_table)[(__i + 1) % __table_len]),                   \
-                sizeof(p_map->_tmp));                                          \
+            memmove(&((map._table)[__i]),                                      \
+                &((map._table)[(__i + 1) % __table_len]),                      \
+                sizeof(map._tmp));                                             \
         }                                                                      \
-        (p_map->_table)[__stop_pos-1]._in_use = false;                         \
-        --(p_map->_nelem);                                                     \
-        p_map->status = MAP_SUCCESS;                                           \
+        (map._table)[__stop_pos-1]._in_use = false;                            \
+        --(map._nelem);                                                        \
+        map.status = MAP_SUCCESS;                                              \
     }                                                                          \
     else                                                                       \
     {                                                                          \
-        p_map->status = MAP_KEY_NOT_FOUND;                                     \
+        map.status = MAP_KEY_NOT_FOUND;                                        \
     }                                                                          \
 }while(0)
 
-#define _map_length(p_ans, p_map)                                              \
+#define _map_length(ans, map)                                                  \
 do                                                                             \
 {                                                                              \
-    *p_ans = p_map->_nelem;                                                    \
+    ans = map._nelem;                                                          \
 }while(0)
 
-#define _map_load_factor(p_ans, p_map)                                         \
+#define _map_load_factor(ans, map)                                             \
 do                                                                             \
 {                                                                              \
-    *p_ans = ((double)p_map->_nelem)/_map_pow2(p_map->_bits);                  \
+    ans = ((double)map._nelem)/_map_pow2(map._bits);                           \
 }while(0)
 
 static size_t str_hash(void* key)

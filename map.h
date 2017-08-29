@@ -60,6 +60,9 @@ struct                                                                         \
     /* map(KEY_TYPE, VALUE_TYPE)* */p_map)                                     \
                                               _map_load_factor((p_ans), (p_map))
 
+static size_t str_hash(void* key);
+static bool str_eq(void* str1, void* str2);
+
 ///////////////////////////////// DEFINITIONS //////////////////////////////////
 #define MAP_DEFAULT_BITS 16
 #define MAP_BITS_PER_SIZE_T (sizeof(size_t)*CHAR_BIT)
@@ -127,7 +130,8 @@ do                                                                             \
     size_t __key_not_found = true;                                             \
     while (__key_not_found && (p_map->_table)[__curr]._in_use)                 \
     {                                                                          \
-        if ((p_map->_table)[__curr]._key == p_map->_tmp._key)                  \
+        if (p_map->_key_eq_f(&((p_map->_table)[__curr]._key),                  \
+            &(p_map->_tmp._key)))                                              \
         {                                                                      \
             /* key exists in the table already, so change it's value */        \
             memcpy(&((p_map->_table)[__curr]), &(p_map->_tmp),                 \
@@ -184,7 +188,8 @@ do                                                                             \
         _map_dib(p_map->_tmp._hash, __curr, p_map->_bits) >=                   \
         _map_dib((p_map->_table)[__curr]._hash, __curr, p_map->_bits))         \
     {                                                                          \
-        if ((p_map->_table)[__curr]._key == p_map->_tmp._key)                  \
+        if (p_map->_key_eq_f(&((p_map->_table)[__curr]._key),                  \
+            &(p_map->_tmp._key)))                                              \
         {                                                                      \
             *p_ans = true;                                                     \
             /* map_get needs the value at __curr */                            \
@@ -244,5 +249,22 @@ do                                                                             \
 {                                                                              \
     *p_ans = ((double)p_map->_nelem)/_map_pow2(p_map->_bits);                  \
 }while(0)
+
+static size_t str_hash(void* key)
+{
+    char* str = (char*)key;
+    // Hash cstring using the jdb hash function.
+    size_t hash = 5381;
+    while (*str)
+    {
+        hash = 33 * hash ^ (unsigned char)*str++;
+    }
+    return hash;
+}
+
+static bool str_eq(void* str1, void* str2)
+{
+    return strcmp(str1, str2) == 0;
+}
 
 #endif // !_MAP_H_

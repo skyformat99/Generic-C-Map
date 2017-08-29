@@ -4,7 +4,7 @@
 #include <EMUtest.h>
 #include "../map.h"
 
-size_t hash_int(void* key)
+size_t test_hash_int(void* key)
 {
     // hash a key to itself for testing purposes
     return *(int*)key;
@@ -19,19 +19,15 @@ EMU_TEST(init_and_deinit)
 {
     map(int, int) m;
 
-    map_init(&m, hash_int, int_eq, 100);
+    map_init(&m, test_hash_int, int_eq, 100);
     EMU_REQUIRE_EQ(m.status, MAP_INPUT_OUT_OF_RANGE);
 
-    map_init(&m, hash_int, int_eq, 16);
+    map_init(&m, test_hash_int, int_eq, 16);
     EMU_REQUIRE_EQ(m.status, MAP_SUCCESS);
-    EMU_EXPECT_EQ_UINT(m._nelem, 0);
-    EMU_EXPECT_EQ_UINT(m._bits, 16);
     map_deinit(&m);
 
-    map_init(&m, hash_int, int_eq, MAP_DEFAULT_BITS);
+    map_init(&m, test_hash_int, int_eq, MAP_DEFAULT_BITS);
     EMU_REQUIRE_EQ(m.status, MAP_SUCCESS);
-    EMU_EXPECT_EQ_UINT(m._nelem, 0);
-    EMU_EXPECT_GT_UINT(m._bits, 0);
     map_deinit(&m);
 
     EMU_END_TEST();
@@ -40,7 +36,7 @@ EMU_TEST(init_and_deinit)
 EMU_TEST(basic_set)
 {
     map(int, int) m;
-    map_init(&m, hash_int, int_eq, MAP_DEFAULT_BITS);
+    map_init(&m, test_hash_int, int_eq, MAP_DEFAULT_BITS);
 
     map_set(&m, 0, 3);
     EMU_REQUIRE_EQ(m.status, MAP_SUCCESS);
@@ -69,7 +65,7 @@ EMU_TEST(complex_set_with_swaps)
     // Test insertion using the insertion example found at
     // http://codecapsule.com/2013/11/11/robin-hood-hashing/
     map(int, char) m;
-    map_init(&m, hash_int, int_eq, MAP_DEFAULT_BITS);
+    map_init(&m, test_hash_int, int_eq, MAP_DEFAULT_BITS);
     size_t table_len = _map_pow2(m._bits);
 
     // setup before final insert
@@ -113,7 +109,7 @@ EMU_GROUP(map_set)
 EMU_TEST(map_key_exists)
 {
     map(int, int) m;
-    map_init(&m, hash_int, int_eq, MAP_DEFAULT_BITS);
+    map_init(&m, test_hash_int, int_eq, MAP_DEFAULT_BITS);
     bool ans;
 
     map_key_exists(&ans, &m, 0);
@@ -132,7 +128,7 @@ EMU_TEST(map_key_exists)
 EMU_TEST(map_get)
 {
     map(int, int) m;
-    map_init(&m, hash_int, int_eq, MAP_DEFAULT_BITS);
+    map_init(&m, test_hash_int, int_eq, MAP_DEFAULT_BITS);
 
     int ans;
     map_get(&ans, &m, 0);
@@ -150,7 +146,7 @@ EMU_TEST(map_get)
 EMU_TEST(basic_remove)
 {
     map(int, int) m;
-    map_init(&m, hash_int, int_eq, MAP_DEFAULT_BITS);
+    map_init(&m, test_hash_int, int_eq, MAP_DEFAULT_BITS);
     bool ans;
 
     map_set(&m, 0, 3);
@@ -174,7 +170,7 @@ EMU_TEST(complex_remove_with_swaps)
     // although the actual backwards shift deletion diagram on the page is
     // incorrect.
     map(int, char) m;
-    map_init(&m, hash_int, int_eq, MAP_DEFAULT_BITS);
+    map_init(&m, test_hash_int, int_eq, MAP_DEFAULT_BITS);
     size_t table_len = _map_pow2(m._bits);
 
     // setup
@@ -215,7 +211,7 @@ EMU_GROUP(map_remove)
 EMU_TEST(map_length)
 {
     map(int, int) m;
-    map_init(&m, hash_int, int_eq, MAP_DEFAULT_BITS);
+    map_init(&m, test_hash_int, int_eq, MAP_DEFAULT_BITS);
     size_t len;
 
     map_length(&len, &m);
@@ -240,7 +236,7 @@ EMU_TEST(map_length)
 EMU_TEST(map_load_factor)
 {
     map(int, int) m;
-    map_init(&m, hash_int, int_eq, 2);
+    map_init(&m, test_hash_int, int_eq, 2);
     double lf;
 
     map_load_factor(&lf, &m);
@@ -270,7 +266,7 @@ EMU_TEST(map_load_factor)
     EMU_END_TEST();
 }
 
-EMU_GROUP(all_tests)
+EMU_GROUP(macro_unit_tests)
 {
     EMU_ADD(init_and_deinit);
     EMU_ADD(map_set);
@@ -282,8 +278,85 @@ EMU_GROUP(all_tests)
     EMU_END_GROUP();
 }
 
+EMU_TEST(book_reviews)
+{
+    // Example that follow the Rush HashMap example at
+    // https://doc.rust-lang.org/std/collections/struct.HashMap.html
+    map(char*, char*) book_reviews;
+    map_init(&book_reviews, str_hash, str_eq, MAP_DEFAULT_BITS);
+
+    map_set(&book_reviews, "Adventures of Huckleberry Finn", "My favorite book.");
+    map_set(&book_reviews, "Grimms' Fairy Tales", "Masterpiece.");
+    map_set(&book_reviews, "Pride and Prejudice", "Very enjoyable.");
+    map_set(&book_reviews, "The Adventures of Sherlock Holmes", "Eye lyked it alot.");
+
+    char* review;
+    map_get(&review, &book_reviews, "Adventures of Huckleberry Finn");
+    EMU_EXPECT_STREQ(review, "My favorite book.");
+    map_get(&review, &book_reviews, "Grimms' Fairy Tales");
+    EMU_EXPECT_STREQ(review, "Masterpiece.");
+    map_get(&review, &book_reviews, "Pride and Prejudice");
+    EMU_EXPECT_STREQ(review, "Very enjoyable.");
+    map_get(&review, &book_reviews, "The Adventures of Sherlock Holmes");
+    EMU_EXPECT_STREQ(review, "Eye lyked it alot.");
+
+    bool exists;
+    map_key_exists(&exists, &book_reviews, "Les Misérables");
+    if (!exists)
+    {
+        size_t num_elems;
+        map_length(&num_elems, &book_reviews);
+        EMU_PRINT_INDENT();
+        printf("We've got %zu reviews, but Les Misérables ain't one.\n", num_elems);
+    }
+
+    map_remove(&book_reviews, "The Adventures of Sherlock Holmes");
+
+    // TODO: iterate over everything
+
+    map_deinit(&book_reviews);
+    EMU_END_TEST();
+}
+
+void print_coffee_cost(void* map_param, char* coffee)
+{
+    map(char*, float)* m = (map(char*, float)*)map_param;
+    float cost;
+    map_get(&cost, m, coffee);
+    printf("%s : $%.2f\n", coffee, cost);
+}
+
+EMU_TEST(pass_map_to_a_function)
+{
+    map(char*, float) coffee_cost;
+    map_init(&coffee_cost, str_hash, str_eq, 4);
+
+    map_set(&coffee_cost, "black", 2.50);
+    map_set(&coffee_cost, "latte", 4.00);
+    map_set(&coffee_cost, "frap", 4.25);
+
+    EMU_PRINT_INDENT();
+    print_coffee_cost(&coffee_cost, "black");
+
+    map_deinit(&coffee_cost);
+    EMU_END_TEST();
+}
+
+EMU_GROUP(general_usability)
+{
+    EMU_ADD(book_reviews);
+    EMU_ADD(pass_map_to_a_function);
+    EMU_END_GROUP();
+}
+
+EMU_GROUP(all_tests)
+{
+    EMU_ADD(macro_unit_tests);
+    EMU_ADD(general_usability);
+    EMU_END_GROUP();
+}
+
 int main(void)
 {
     return EMU_RUN(all_tests);
 }
-

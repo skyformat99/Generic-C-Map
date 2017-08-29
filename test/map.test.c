@@ -321,7 +321,7 @@ EMU_TEST(book_reviews)
 void print_coffee_cost(void* map_param, char* coffee)
 {
     map(char*, float) m;
-    memcpy(&m, map_param, sizeof(map(char*, float)));
+    memcpy(&m, map_param, sizeof(map(char*, float))); // ugly but works
 
     float cost;
     map_get(cost, m, coffee);
@@ -337,8 +337,9 @@ EMU_TEST(pass_map_to_a_function)
     map_set(coffee_cost, "latte", 4.00);
     map_set(coffee_cost, "frap", 4.25);
 
-    EMU_PRINT_INDENT();
-    print_coffee_cost(&coffee_cost, "black");
+    EMU_PRINT_INDENT(); print_coffee_cost(&coffee_cost, "black");
+    EMU_PRINT_INDENT(); print_coffee_cost(&coffee_cost, "frap");
+    EMU_PRINT_INDENT(); print_coffee_cost(&coffee_cost, "latte");
 
     map_deinit(coffee_cost);
     EMU_END_TEST();

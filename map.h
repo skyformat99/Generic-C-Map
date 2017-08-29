@@ -59,8 +59,13 @@ struct                                                                         \
 #define map_load_factor(/* double */ans, /* map(KEY_TYPE, VALUE_TYPE) */map)   \
                                                   _map_load_factor((ans), (map))
 
+// Hash/eq functions for built in types.
+static size_t int32_hash(void* key);
+static bool   int32_eq(void* i1, void* i2);
+static size_t int64_hash(void* key);
+static bool   int64_eq(void* i1, void* i2);
 static size_t str_hash(void* key);
-static bool str_eq(void* str1, void* str2);
+static bool   str_eq(void* str1, void* str2);
 
 ///////////////////////////////// DEFINITIONS //////////////////////////////////
 #define MAP_DEFAULT_BITS 16
@@ -249,10 +254,9 @@ do                                                                             \
     ans = ((double)map._nelem)/_map_pow2(map._bits);                           \
 }while(0)
 
-static size_t str_hash(void* key)
+static inline size_t djb_str(void* key)
 {
     char* str = (char*)key;
-    // Hash cstring using the jdb hash function.
     size_t hash = 5381;
     while (*str)
     {
@@ -261,7 +265,49 @@ static size_t str_hash(void* key)
     return hash;
 }
 
-static bool str_eq(void* str1, void* str2)
+static inline size_t djb_general(void* key, size_t size)
+{
+    char* bytes = (char*)key;
+    size_t hash = 5381;
+    for (size_t i = 0; i < size; ++i)
+    {
+        hash = 33 * hash ^ (unsigned char)bytes[i];
+    }
+    return hash;
+}
+
+#ifdef __GNUC__
+#   define UNUSED __attribute__ ((unused))
+#else
+#   define UNUSED
+#endif
+
+UNUSED static size_t int32_hash(void* key)
+{
+    return djb_general(key, sizeof(uint32_t));
+}
+
+UNUSED static bool int32_eq(void* i1, void* i2)
+{
+    return *((int32_t*)i1) == *((int32_t*)i2);
+}
+
+UNUSED static size_t int64_hash(void* key)
+{
+    return djb_general(key, sizeof(uint64_t));
+}
+
+UNUSED static bool int64_eq(void* i1, void* i2)
+{
+    return *((int64_t*)i1) == *((int64_t*)i2);
+}
+
+UNUSED static size_t str_hash(void* key)
+{
+    return djb_str(key);
+}
+
+UNUSED static bool str_eq(void* str1, void* str2)
 {
     return strcmp(str1, str2) == 0;
 }

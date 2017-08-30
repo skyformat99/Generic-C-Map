@@ -99,10 +99,26 @@ EMU_TEST(complex_set_with_swaps)
     EMU_END_TEST();
 }
 
+EMU_TEST(probe_over_table_boundry)
+{
+    map(int, int) m;
+    map_init(m, test_hash_int, int_eq, 2);
+
+    map_set(m, 3, 98);
+    map_set(m, 7, 99);
+    EMU_EXPECT_EQ(m.status, MAP_SUCCESS);
+    EMU_EXPECT_EQ_INT((m._table)[3]._value, 98);
+    EMU_EXPECT_EQ_INT((m._table)[0]._value, 99);
+
+    map_deinit(m);
+    EMU_END_TEST();
+}
+
 EMU_GROUP(map_set)
 {
     EMU_ADD(basic_set);
     EMU_ADD(complex_set_with_swaps);
+    EMU_ADD(probe_over_table_boundry);
     EMU_END_GROUP();
 }
 

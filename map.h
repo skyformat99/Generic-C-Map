@@ -199,7 +199,7 @@ do                                                                             \
             /* map_get needs the value at __curr */                            \
             map._tmp._value = (map._table)[__curr]._value;                     \
             /* map_remove needs the location of the element (i.e. __curr) */   \
-             /* use _hash as tmp index holder, not an actual hash */           \
+            /* use _hash as tmp index holder, not an actual hash */            \
             map._tmp._hash = __curr;                                           \
             break;                                                             \
         }                                                                      \
@@ -218,21 +218,27 @@ do                                                                             \
         /* _map_key_exists stores the index where target element was found */  \
         /* Note: _tmp._hash isn't actually a hash. It's the index where the */ \
         /* target element actually ended up. */                                \
-        size_t __target_pos = map._tmp._hash;                                  \
-        size_t __stop_pos = __target_pos + 1;                                  \
         size_t __table_len = _map_pow2(map._bits);                             \
+        size_t __target_pos = map._tmp._hash;                                  \
+        size_t __stop_pos = (__target_pos + 1) % __table_len;                  \
+        /* find position of the stop bucket */                                 \
         while ((map._table)[__stop_pos]._in_use &&                             \
             _map_dib(__target_pos, __stop_pos, map._bits) > 0)                 \
         {                                                                      \
             __stop_pos = (__stop_pos + 1) % __table_len;                       \
         }                                                                      \
-        for (size_t __i = __target_pos; __i < __stop_pos-1; ++__i)             \
+        /* shift all elements in front of the stop bucket */                   \
+        size_t __i = __target_pos;                                             \
+        while (__i != __stop_pos-1)                                            \
         {                                                                      \
             memmove(&((map._table)[__i]),                                      \
                 &((map._table)[(__i + 1) % __table_len]),                      \
                 sizeof(map._tmp));                                             \
+            __i = (__i + 1) % __table_len;                                     \
         }                                                                      \
+        /* mark the duplicate bucket at the back as no longer in use */        \
         (map._table)[__stop_pos-1]._in_use = false;                            \
+        /* adjust map metadata */                                              \
         --(map._nelem);                                                        \
         map.status = MAP_SUCCESS;                                              \
     }                                                                          \

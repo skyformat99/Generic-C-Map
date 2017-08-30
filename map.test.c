@@ -5,7 +5,7 @@
 #   define _EMU_ENABLE_COLOR_
 #endif
 #include <EMUtest.h>
-#include "../map.h"
+#include "map.h"
 
 size_t test_hash_int(void* key)
 {

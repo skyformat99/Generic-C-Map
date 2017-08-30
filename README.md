@@ -1,21 +1,22 @@
 # Generic C Map
 
 ## Intro
-This project was an attempt to create a general hash table data structure that will allow mappings to and from any C datatype. In short with this library you get a truely generic map in C at the cost of a somewhat ugly API and headaches that come with a macro-only library. This library is a neat little experiment, but I would not reccomend it for any type of production code.
+This project was an attempt to create a general hash table data structure that will allow mappings to and from any C datatype. In short with this library you get a truly generic map in C at the cost of a somewhat ugly API and headaches that come with a macro-only library. This library is a neat little experiment, but I would not recommend it for any type of production code.
 
 ## Advantages/Disadvantages of the Library
 + Advantages
     + Keys/values can be any type, including structs
     + Open addressing with robin hood hashing is cache friendly for table operations
-    + Straghtforward API (what you see is what you get)
+    + Straightforward API (what you see is what you get)
     + Header only library requires no extra linking
 + Disadvantages
-    + All map operations are implimented through macros meaning:
+    + All map operations are implemented through macros meaning:
         + Certain macro parameters **MUST** be constant expressions and will generate no compile-time warnings if you forget
-        + All map operations use a void-function-like way of "returning" values that is ugly and unintuative
-        + There are probably bugs I have not found yet because the C gods have a rule that all code written using macros comes with a minumum of 2 uncaught bugs upon release
+        + All map operations use a void-function-like way of "returning" values that is ugly and unintuitive
+        + There are probably bugs I have not found yet because the C gods have a rule that all code written using macros comes with a minimum of 2 uncaught bugs upon release
     + I'm far from a hash table expert, so this library is probably slower than actual professionally developed libraries
     + No dynamic resizing, i.e. the size of the map is set only once during initialization
+    + The map types are created as anonymous structs which are difficult to pass around to between function contexts
 
 ## API
 Note: Due to the limitations of a macro-only library the macro parameters **map** and **ans** **MUST** be constant expressions.
@@ -30,7 +31,7 @@ map(KEY_TYPE, VALUE_TYPE)
 ```
 Example:
 ```C
-// delcares my_map as a map from char* to float
+// declares my_map as a map from char* to float
 map(char*, float) my_map;
 ```
 

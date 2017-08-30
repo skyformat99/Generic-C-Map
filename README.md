@@ -1,4 +1,5 @@
 # Generic C Map
+
 ## Intro
 This project was an attempt to create a general hash table data structure that will allow mappings to and from any C datatype. In short with this library you get a truely generic map in C at the cost of a somewhat ugly API and headaches that come with a macro-only implimentation. This library is a neat little experiment, but I would not reccomend it for any type of production code.
 
@@ -19,6 +20,8 @@ This project was an attempt to create a general hash table data structure that w
 
 ## API
 Note: Due to the limitations of a macro-only library the macro parameters **map** and **ans** **MUST** be constant expressions.
+
+The status (success or various different types of failures) can be checked after every operation with the `.status` member in the map.
 
 ----
 ### map declaration

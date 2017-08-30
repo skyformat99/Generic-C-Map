@@ -1,3 +1,6 @@
+// Unit tests written with Extended Min Unit
+// https://github.com/VictorSCushman/EMU
+
 #if __linux__
 #   define _EMU_ENABLE_COLOR_
 #endif

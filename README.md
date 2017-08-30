@@ -1,7 +1,7 @@
 # Generic C Map
 
 ## Intro
-This project was an attempt to create a general hash table data structure that will allow mappings to and from any C datatype. In short with this library you get a truely generic map in C at the cost of a somewhat ugly API and headaches that come with a macro-only implimentation. This library is a neat little experiment, but I would not reccomend it for any type of production code.
+This project was an attempt to create a general hash table data structure that will allow mappings to and from any C datatype. In short with this library you get a truely generic map in C at the cost of a somewhat ugly API and headaches that come with a macro-only library. This library is a neat little experiment, but I would not reccomend it for any type of production code.
 
 ## Advantages/Disadvantages of the Library
 + Advantages
@@ -16,7 +16,6 @@ This project was an attempt to create a general hash table data structure that w
         + There are probably bugs I have not found yet because the C gods have a rule that all code written using macros comes with a minumum of 2 uncaught bugs upon release
     + I'm far from a hash table expert, so this library is probably slower than actual professionally developed libraries
     + No dynamic resizing, i.e. the size of the map is set only once during initialization
-    + As far as I know, the library only compiles without warnings (using -Wall and -Wexra) with gcc. Clang genrally has more verbose warning messages which it *loves* printing for macro-only libraries
 
 ## API
 Note: Due to the limitations of a macro-only library the macro parameters **map** and **ans** **MUST** be constant expressions.
@@ -106,7 +105,7 @@ Sets `ans` to the number of unique keys inserted into `map`.
 map_length(ans, map)
 ```
 Parameters:
-+ `size_t ans` : lvalue set to the number of key in the `map` **(required constexpr)**
++ `size_t ans` : lvalue set to the number of keys in the `map` **(required constexpr)**
 + `map` : target map **(required constexpr)**
 
 ----

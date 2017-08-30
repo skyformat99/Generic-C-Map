@@ -198,6 +198,7 @@ do                                                                             \
     }                                                                          \
     else                                                                       \
     {                                                                          \
+        memset(&ans, 0, sizeof(ans)); /* to shut clang up */                   \
         map.status = MAP_KEY_NOT_FOUND;                                        \
     }                                                                          \
 }while(0)

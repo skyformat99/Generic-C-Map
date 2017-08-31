@@ -344,7 +344,7 @@ void print_coffee_cost(void* map_param, char* coffee)
 
     float cost;
     map_get(cost, m, coffee);
-    printf("%s : $%.2f\n", coffee, cost);
+    printf("%s = $%.2f\n", coffee, cost);
 }
 
 EMU_TEST(pass_map_to_a_function)
@@ -356,6 +356,7 @@ EMU_TEST(pass_map_to_a_function)
     map_set(coffee_cost, "latte", 4.00);
     map_set(coffee_cost, "frap", 4.25);
 
+    EMU_PRINT_INDENT(); puts("Coffee costs:");
     EMU_PRINT_INDENT(); print_coffee_cost(&coffee_cost, "black");
     EMU_PRINT_INDENT(); print_coffee_cost(&coffee_cost, "frap");
     EMU_PRINT_INDENT(); print_coffee_cost(&coffee_cost, "latte");

@@ -306,37 +306,37 @@ static inline size_t djb_general(void* key, size_t size)
 }
 
 #ifdef __GNUC__
-#   define UNUSED __attribute__ ((unused))
+#   define MAP_UNUSED_FUNC __attribute__ ((unused))
 #else
-#   define UNUSED
+#   define MAP_UNUSED_FUNC
 #endif
 
-UNUSED static size_t int32_hash(void* key)
+MAP_UNUSED_FUNC static size_t int32_hash(void* key)
 {
     return djb_general(key, sizeof(uint32_t));
 }
 
-UNUSED static bool int32_eq(void* i1, void* i2)
+MAP_UNUSED_FUNC static bool int32_eq(void* i1, void* i2)
 {
     return *((int32_t*)i1) == *((int32_t*)i2);
 }
 
-UNUSED static size_t int64_hash(void* key)
+MAP_UNUSED_FUNC static size_t int64_hash(void* key)
 {
     return djb_general(key, sizeof(uint64_t));
 }
 
-UNUSED static bool int64_eq(void* i1, void* i2)
+MAP_UNUSED_FUNC static bool int64_eq(void* i1, void* i2)
 {
     return *((int64_t*)i1) == *((int64_t*)i2);
 }
 
-UNUSED static size_t str_hash(void* key)
+MAP_UNUSED_FUNC static size_t str_hash(void* key)
 {
     return djb_str(key);
 }
 
-UNUSED static bool str_eq(void* str1, void* str2)
+MAP_UNUSED_FUNC static bool str_eq(void* str1, void* str2)
 {
     return strcmp(str1, str2) == 0;
 }

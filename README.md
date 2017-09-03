@@ -46,7 +46,7 @@ Parameters:
 + `size_t (*)(void*) hash_f` : hashes a pointer-to-keytype to a size_t
 + `bool (*)(void*, void*) key_eq_f` : returns true if two keys are semantically equal
 + `unsigned num_bits` : the number of slots in the hash table is 2^num_bits
-
+    + The macro `MAP_DEFAULT_BITS` is defined as a sutiable number of bits for most use cases
 ----
 ### map_deinit
 Free resources used by a map. Every map should be deinitialized before leaving scope.
@@ -111,13 +111,25 @@ Parameters:
 
 ----
 ## map_load_factor
-Sets `ans` to the load factor `map`.
+Sets `ans` to the load factor of `map`.
 ```C
 map_load_factor(ans, map)
 ```
 Parameters:
 + `double ans` : lvalue set to the load factor of `map` **(required constexpr)**
 + `map` : target map **(required constexpr)**
+
+----
+## map_keys
+Sets the fisrt `map_length` elements of `ans` to available keys in `map`.
+```C
+ map_keys(ans, map)
+ ```
+Parameters:
++ `KEY_TYPE[] ans` : array to be filled with the keys of `map` **(required constexpr)**
+    + `ans` must have space >= to the length of `map`
++ `map` : target map **(required constexpr)**
+
 
 ## License
 MIT

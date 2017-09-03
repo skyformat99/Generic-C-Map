@@ -285,6 +285,31 @@ EMU_TEST(map_load_factor)
     EMU_END_TEST();
 }
 
+EMU_TEST(map_keys)
+{
+    map(int, char) m;
+    map_init(m, test_hash_int, int_eq, MAP_DEFAULT_BITS);
+
+    map_set(m, 0, 'a');
+    map_set(m, 3, 'b');
+    map_set(m, 500, 'c');
+    map_set(m, 999, 'd');
+
+    size_t len;
+    map_length(len, m);
+    int key_buff[256];
+    map_keys(key_buff, m);
+    for (size_t i = 0; i < len; ++i)
+    {
+        bool exists;
+        map_key_exists(exists, m, key_buff[i]);
+        EMU_EXPECT_TRUE(exists);
+    }
+
+    map_deinit(m);
+    EMU_END_TEST();
+}
+
 EMU_GROUP(macro_unit_tests)
 {
     EMU_ADD(init_and_deinit);
@@ -294,6 +319,7 @@ EMU_GROUP(macro_unit_tests)
     EMU_ADD(map_remove);
     EMU_ADD(map_length);
     EMU_ADD(map_load_factor);
+    EMU_ADD(map_keys);
     EMU_END_GROUP();
 }
 
@@ -331,8 +357,20 @@ EMU_TEST(book_reviews)
 
     map_remove(book_reviews, "The Adventures of Sherlock Holmes");
 
-    // TODO: iterate over everything
+    size_t len;
+    map_length(len, book_reviews);
+    char** keys = calloc(len, sizeof(char*));
+    map_keys(keys, book_reviews);
 
+    EMU_PRINT_INDENT(); printf("Our reviews after deletion:\n");
+    for (size_t i = 0; i < len; ++i)
+    {
+        char* review;
+        map_get(review, book_reviews, keys[i]);
+        EMU_PRINT_INDENT(); printf("\"%s\" : \"%s\"\n", keys[i], review);
+    }
+
+    free(keys);
     map_deinit(book_reviews);
     EMU_END_TEST();
 }

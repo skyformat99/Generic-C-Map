@@ -81,6 +81,9 @@ struct                                                                         \
 #define map_load_factor(/* double */ans, /* map(KEY_TYPE, VALUE_TYPE) */map)   \
                                                   _map_load_factor((ans), (map))
 
+#define map_keys(/* KEY_TYPE[] */ans, /* map(KEY_TYPE, VALUE_TYPE) */map)      \
+                                                         _map_keys((ans), (map))
+
 // Hash/eq functions for built in types.
 static size_t int32_hash(void* key);
 static bool   int32_eq(void* i1, void* i2);
@@ -283,6 +286,24 @@ do                                                                             \
     ans = ((double)map._nelem)/_map_pow2(map._bits);                           \
 }while(0)
 
+#define _map_keys(ans, map)                                                    \
+do                                                                             \
+{                                                                              \
+    size_t __ans_index = 0;                                                    \
+    size_t __map_index = 0;                                                    \
+    size_t __elems_to_copy;                                                    \
+    map_length(__elems_to_copy, map);                                          \
+    while (__elems_to_copy)                                                    \
+    {                                                                          \
+        if (map._table[__map_index]._in_use)                                   \
+        {                                                                      \
+            ans[__ans_index++] = map._table[__map_index]._key;                 \
+            __elems_to_copy--;                                                 \
+        }                                                                      \
+        __map_index++;                                                         \
+    }                                                                          \
+}while(0)
+
 static inline size_t djb_str(void* key)
 {
     char* str = (char*)key;
@@ -306,37 +327,37 @@ static inline size_t djb_general(void* key, size_t size)
 }
 
 #ifdef __GNUC__
-#   define MAP_UNUSED_FUNC __attribute__ ((unused))
+#   define MAP_UNUSED __attribute__ ((unused))
 #else
-#   define MAP_UNUSED_FUNC
+#   define MAP_UNUSED
 #endif
 
-MAP_UNUSED_FUNC static size_t int32_hash(void* key)
+MAP_UNUSED static size_t int32_hash(void* key)
 {
     return djb_general(key, sizeof(uint32_t));
 }
 
-MAP_UNUSED_FUNC static bool int32_eq(void* i1, void* i2)
+MAP_UNUSED static bool int32_eq(void* i1, void* i2)
 {
     return *((int32_t*)i1) == *((int32_t*)i2);
 }
 
-MAP_UNUSED_FUNC static size_t int64_hash(void* key)
+MAP_UNUSED static size_t int64_hash(void* key)
 {
     return djb_general(key, sizeof(uint64_t));
 }
 
-MAP_UNUSED_FUNC static bool int64_eq(void* i1, void* i2)
+MAP_UNUSED static bool int64_eq(void* i1, void* i2)
 {
     return *((int64_t*)i1) == *((int64_t*)i2);
 }
 
-MAP_UNUSED_FUNC static size_t str_hash(void* key)
+MAP_UNUSED static size_t str_hash(void* key)
 {
     return djb_str(key);
 }
 
-MAP_UNUSED_FUNC static bool str_eq(void* str1, void* str2)
+MAP_UNUSED static bool str_eq(void* str1, void* str2)
 {
     return strcmp(str1, str2) == 0;
 }

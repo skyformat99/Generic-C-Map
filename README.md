@@ -121,7 +121,7 @@ Parameters:
 
 ----
 ## map_keys
-Sets the fisrt `map_length` elements of `ans` to available keys in `map`.
+Sets the first `map_length` elements of `ans` to available keys in `map`.
 ```C
  map_keys(ans, map)
  ```

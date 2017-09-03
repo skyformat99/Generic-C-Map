@@ -278,12 +278,14 @@ do                                                                             \
 do                                                                             \
 {                                                                              \
     ans = map._nelem;                                                          \
+    map.status = MAP_SUCCESS;                                                  \
 }while(0)
 
 #define _map_load_factor(ans, map)                                             \
 do                                                                             \
 {                                                                              \
     ans = ((double)map._nelem)/_map_pow2(map._bits);                           \
+    map.status = MAP_SUCCESS;                                                  \
 }while(0)
 
 #define _map_keys(ans, map)                                                    \
@@ -302,6 +304,7 @@ do                                                                             \
         }                                                                      \
         __map_index++;                                                         \
     }                                                                          \
+    map.status = MAP_SUCCESS;                                                  \
 }while(0)
 
 static inline size_t djb_str(void* key)
